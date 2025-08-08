@@ -27,12 +27,22 @@ class FirebaseService:
                 # Try to get credentials from environment variable (for production)
                 firebase_config = os.environ.get('FIREBASE_CONFIG')
                 if firebase_config:
-                    cred_dict = json.loads(firebase_config)
-                    cred = credentials.Certificate(cred_dict)
+                    try:
+                        cred_dict = json.loads(firebase_config)
+                        cred = credentials.Certificate(cred_dict)
+                        print("Using Firebase credentials from environment variable")
+                    except json.JSONDecodeError as e:
+                        print(f"Error parsing FIREBASE_CONFIG JSON: {e}")
+                        raise
                 else:
                     # Fallback to local file (for development)
+                    from django.conf import settings
                     cred_path = os.path.join(settings.BASE_DIR, 'firebase_credentials.json')
-                    cred = credentials.Certificate(cred_path)
+                    if os.path.exists(cred_path):
+                        cred = credentials.Certificate(cred_path)
+                        print("Using Firebase credentials from local file")
+                    else:
+                        raise FileNotFoundError("Firebase credentials not found. Please set FIREBASE_CONFIG environment variable or provide firebase_credentials.json file.")
                 
                 firebase_admin.initialize_app(cred)
                 self._db = firestore.client()

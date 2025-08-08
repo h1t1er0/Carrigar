@@ -143,9 +143,6 @@ GOOGLE_OAUTH2_REDIRECT_URI = os.environ.get('GOOGLE_OAUTH2_REDIRECT_URI', 'http:
 
 # Firebase Settings
 FIREBASE_CONFIG = os.environ.get('FIREBASE_CONFIG')
-if not FIREBASE_CONFIG:
-    # For local development, use the credentials file
-    FIREBASE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'firebase_credentials.json')
 
 # Media files (Uploaded files)
 MEDIA_URL = '/media/'
