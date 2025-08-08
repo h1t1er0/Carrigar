@@ -137,9 +137,15 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Google OAuth Settings
-GOOGLE_OAUTH2_CLIENT_ID = 'your-google-client-id.apps.googleusercontent.com'
-GOOGLE_OAUTH2_CLIENT_SECRET = 'your-google-client-secret'
-GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/accounts/google/callback/'
+GOOGLE_OAUTH2_CLIENT_ID = os.environ.get('GOOGLE_OAUTH2_CLIENT_ID', 'your-google-client-id.apps.googleusercontent.com')
+GOOGLE_OAUTH2_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH2_CLIENT_SECRET', 'your-google-client-secret')
+GOOGLE_OAUTH2_REDIRECT_URI = os.environ.get('GOOGLE_OAUTH2_REDIRECT_URI', 'http://127.0.0.1:8000/accounts/google/callback/')
+
+# Firebase Settings
+FIREBASE_CONFIG = os.environ.get('FIREBASE_CONFIG')
+if not FIREBASE_CONFIG:
+    # For local development, use the credentials file
+    FIREBASE_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'firebase_credentials.json')
 
 # Media files (Uploaded files)
 MEDIA_URL = '/media/'

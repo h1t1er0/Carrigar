@@ -136,3 +136,6 @@ media/
 
 # Vercel
 .vercel
+
+# Firebase credentials
+firebase_credentials.json
