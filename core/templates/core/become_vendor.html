@@ -1,0 +1,313 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become a Vendor - Carrigar by Tubematic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; font-family: 'Poppins', Arial, sans-serif; }
+        .logo-img { max-width: 180px; width: 100%; }
+        .header-bar { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 0 1rem 0; }
+        .hero-section { background: linear-gradient(135deg, #0d6efd 0%, #22c55e 100%); color: white; padding: 4rem 0; }
+        .feature-card { background: white; border-radius: 1rem; box-shadow: 0 4px 16px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 2rem; transition: transform 0.3s; }
+        .feature-card:hover { transform: translateY(-5px); }
+        .feature-icon { font-size: 3rem; color: #0d6efd; margin-bottom: 1rem; }
+        .testimonial-card { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 1rem; padding: 2rem; margin-bottom: 2rem; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 1rem; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .nav-link { color: #333 !important; font-weight: 500; margin: 0 0.5rem; }
+        .nav-link:hover { color: #0d6efd !important; }
+        .benefit-badge { background: #22c55e; color: white; padding: 0.5rem 1rem; border-radius: 2rem; display: inline-block; margin: 0.5rem; }
+        .training-module { background: white; border-left: 4px solid #0d6efd; padding: 1.5rem; margin-bottom: 1rem; border-radius: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header-bar">
+            <a href="/">
+                <img src="{% static 'core/logo.jpeg' %}" alt="Carrigar by Tubematic Logo" class="logo-img">
+            </a>
+            <div class="d-flex align-items-center">
+                <nav class="navbar navbar-expand-lg navbar-light me-3">
+                    <div class="navbar-nav">
+                        <a class="nav-link" href="/services/">Services</a>
+                        <a class="nav-link" href="/how-it-works/">How it Works</a>
+                        <a class="nav-link active" href="/become-vendor/">Become a Vendor</a>
+                    </div>
+                </nav>
+                <a href="/" class="btn btn-outline-primary">Back to Home</a>
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="hero-section text-center">
+            <h1 class="display-4 mb-3">Become a Carrigar Vendor</h1>
+            <p class="lead">You don't have a marketing strategy or budget? We have you covered!</p>
+            <p class="lead">Start with credit terms, get raw materials, and grow your business with our comprehensive support system.</p>
+        </div>
+
+        <!-- Company Video -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="feature-card">
+                    <h2 class="text-center mb-4">About Carrigar</h2>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Partnership Benefits -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h2 class="text-center mb-4">Partnership Benefits</h2>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <i class="fa-solid fa-credit-card feature-icon"></i>
+                    <h4>Credit Terms</h4>
+                    <p>Start working with credit - we provide raw materials upfront with payment on delivery terms.</p>
+                    <ul class="text-start">
+                        <li>No upfront capital required</li>
+                        <li>Flexible payment terms</li>
+                        <li>Raw material supply</li>
+                        <li>Credit line establishment</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <i class="fa-solid fa-chart-line feature-icon"></i>
+                    <h4>Marketing Support</h4>
+                    <p>Complete marketing strategy and budget support to help you grow your business.</p>
+                    <ul class="text-start">
+                        <li>Digital marketing campaigns</li>
+                        <li>Brand development</li>
+                        <li>Lead generation</li>
+                        <li>Market analysis</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <i class="fa-solid fa-graduation-cap feature-icon"></i>
+                    <h4>Training Programs</h4>
+                    <p>Comprehensive training on modern manufacturing and business management systems.</p>
+                    <ul class="text-start">
+                        <li>Quality Management Systems</li>
+                        <li>Production Improvement</li>
+                        <li>Planning Systems</li>
+                        <li>KPI Management</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Programs -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="feature-card">
+                    <h2 class="text-center mb-4">Training & Development Programs</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="training-module">
+                                <h5><i class="fa-solid fa-target text-primary me-2"></i>Company KPIs Management</h5>
+                                <p>Learn to set, track, and optimize key performance indicators for manufacturing excellence.</p>
+                                <ul>
+                                    <li>Production efficiency metrics</li>
+                                    <li>Quality control KPIs</li>
+                                    <li>Cost optimization tracking</li>
+                                    <li>Performance benchmarking</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="training-module">
+                                <h5><i class="fa-solid fa-shield-alt text-success me-2"></i>Quality Management Systems</h5>
+                                <p>Implement ISO standards and quality assurance processes for consistent product excellence.</p>
+                                <ul>
+                                    <li>ISO 9001 implementation</li>
+                                    <li>Quality control procedures</li>
+                                    <li>Documentation systems</li>
+                                    <li>Audit preparation</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="training-module">
+                                <h5><i class="fa-solid fa-cogs text-warning me-2"></i>Production Improvement Systems</h5>
+                                <p>Optimize your production processes with Lean and Six Sigma methodologies.</p>
+                                <ul>
+                                    <li>Lean manufacturing principles</li>
+                                    <li>Six Sigma methodology</li>
+                                    <li>Process optimization</li>
+                                    <li>Waste reduction techniques</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="training-module">
+                                <h5><i class="fa-solid fa-calendar-alt text-info me-2"></i>Planning Systems</h5>
+                                <p>Master production planning, scheduling, and resource management for optimal efficiency.</p>
+                                <ul>
+                                    <li>Production scheduling</li>
+                                    <li>Resource allocation</li>
+                                    <li>Inventory management</li>
+                                    <li>Capacity planning</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vendor Testimonials -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h2 class="text-center mb-4">Vendor Success Stories</h2>
+            </div>
+            <div class="col-md-6">
+                <div class="testimonial-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa-solid fa-user-circle fa-3x text-primary me-3"></i>
+                        <div>
+                            <h5 class="mb-0">Rajesh Kumar</h5>
+                            <p class="text-muted mb-0">Precision Engineering Works, Mumbai</p>
+                        </div>
+                    </div>
+                    <p class="lead">"Carrigar's credit terms and training programs transformed our business. We started with zero marketing budget and now have a steady stream of orders. Their quality management training helped us achieve ISO certification within 6 months."</p>
+                    <div class="mt-3">
+                        <span class="benefit-badge">300% Growth</span>
+                        <span class="benefit-badge">ISO Certified</span>
+                        <span class="benefit-badge">50+ Employees</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="testimonial-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa-solid fa-user-circle fa-3x text-success me-3"></i>
+                        <div>
+                            <h5 class="mb-0">Priya Sharma</h5>
+                            <p class="text-muted mb-0">Advanced Manufacturing Solutions, Pune</p>
+                        </div>
+                    </div>
+                    <p class="lead">"The marketing support and raw material credit terms were game-changers. Carrigar's training on production improvement systems helped us reduce waste by 40% and increase efficiency by 60%. Highly recommended partnership!"</p>
+                    <div class="mt-3">
+                        <span class="benefit-badge">60% Efficiency</span>
+                        <span class="benefit-badge">40% Waste Reduction</span>
+                        <span class="benefit-badge">200% ROI</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vendor Testimonial Video -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="feature-card">
+                    <h2 class="text-center mb-4">Hear From Our Vendors</h2>
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Partnership Process -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="feature-card">
+                    <h2 class="text-center mb-4">How to Become a Vendor</h2>
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <div class="step-number" style="background: #22c55e; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">1</div>
+                            <h5>Apply Online</h5>
+                            <p>Fill out our vendor application form with your business details and requirements.</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="step-number" style="background: #22c55e; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">2</div>
+                            <h5>Assessment</h5>
+                            <p>Our team evaluates your capabilities and discusses partnership opportunities.</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="step-number" style="background: #22c55e; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">3</div>
+                            <h5>Training</h5>
+                            <p>Complete our comprehensive training programs on quality and production systems.</p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="step-number" style="background: #22c55e; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">4</div>
+                            <h5>Start Working</h5>
+                            <p>Begin production with credit terms, raw materials, and ongoing support.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center mt-5 mb-5">
+            <h3>Ready to Grow Your Business?</h3>
+            <p class="lead">Join our network of successful vendors and transform your manufacturing business</p>
+            <a href="#" class="btn btn-primary btn-lg me-3">Apply Now</a>
+            <a href="#" class="btn btn-outline-primary btn-lg">Download Brochure</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-5 py-5" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="mb-3">Carrigar by Tubematic</h5>
+                    <p class="text-light">Precision manufacturing solutions for all your industrial needs. Quality, reliability, and innovation at every step.</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h6 class="mb-3">Office Address</h6>
+                    <p class="text-light mb-2">
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        Tubematic India Private Limited<br>
+                        Virar, Maharashtra, India
+                    </p>
+                    <p class="text-light mb-2">
+                        <i class="fas fa-envelope me-2"></i>
+                        <a href="mailto:info@tubematic.in" class="text-light text-decoration-none">info@tubematic.in</a>
+                    </p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h6 class="mb-3">Follow Us</h6>
+                    <div class="social-links">
+                        <a href="#" class="text-light me-3 fs-4"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-light me-3 fs-4"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-light me-3 fs-4"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-light me-3 fs-4"><i class="fab fa-x-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: #64748b;">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0 text-light">
+                        <strong>Carrigar</strong> - Copyright Ⓒ <strong>TUBEMATIC INDIA PRIVATE LIMITED</strong><br>
+                        All rights reserved 2025
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0 text-light">
+                        <small>Precision • Quality • Innovation</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
