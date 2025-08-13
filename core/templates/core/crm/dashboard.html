@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrigar CRM - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            margin: 4px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card.success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .stat-card.warning {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .stat-card.info {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+        .order-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .order-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .header-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="p-3">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-cogs me-2"></i>
+                        Carrigar CRM
+                    </h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link active" href="{% url 'crm_dashboard' %}">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                        <a class="nav-link" href="{% url 'crm_orders' %}">
+                            <i class="fas fa-clipboard-list me-2"></i>Orders
+                        </a>
+                        <a class="nav-link" href="{% url 'crm_vendors' %}">
+                            <i class="fas fa-industry me-2"></i>Vendors
+                        </a>
+                        <a class="nav-link" href="{% url 'crm_analytics' %}">
+                            <i class="fas fa-chart-bar me-2"></i>Analytics
+                        </a>
+                        <hr class="text-white-50">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="fas fa-home me-2"></i>Main Site
+                        </a>
+                        <a class="nav-link" href="/admin/">
+                            <i class="fas fa-cog me-2"></i>Django Admin
+                        </a>
+                        <a class="nav-link" href="/accounts/logout/">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <!-- Header -->
+                <div class="header-section">
+                    <div class="container-fluid">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h2 class="mb-1">
+                                    <i class="fas fa-tachometer-alt me-2"></i>
+                                    Project Manager Dashboard
+                                </h2>
+                                <p class="mb-0 opacity-75">Welcome back, {{ project_manager.user.get_full_name }}!</p>
+                            </div>
+                            <div class="col-auto">
+                                <div class="text-end">
+                                    <small class="opacity-75">Last updated: {{ "now"|date:"M d, Y H:i" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container-fluid">
+                    <!-- Statistics Cards -->
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-3">
+                            <div class="card stat-card">
+                                <div class="card-body text-center">
+                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                        <i class="fas fa-clipboard-list fa-2x me-3"></i>
+                                        <div>
+                                            <h3 class="mb-0">{{ total_orders }}</h3>
+                                            <small>Total Orders</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-3">
+                            <div class="card stat-card warning">
+                                <div class="card-body text-center">
+                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                        <i class="fas fa-clock fa-2x me-3"></i>
+                                        <div>
+                                            <h3 class="mb-0">{{ pending_orders }}</h3>
+                                            <small>Pending Orders</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-3">
+                            <div class="card stat-card success">
+                                <div class="card-body text-center">
+                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                        <i class="fas fa-search fa-2x me-3"></i>
+                                        <div>
+                                            <h3 class="mb-0">{{ in_review_orders }}</h3>
+                                            <small>Under Review</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-3">
+                            <div class="card stat-card info">
+                                <div class="card-body text-center">
+                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                        <i class="fas fa-cogs fa-2x me-3"></i>
+                                        <div>
+                                            <h3 class="mb-0">{{ in_production_orders }}</h3>
+                                            <small>In Production</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Recent Orders -->
+                        <div class="col-lg-8 mb-4">
+                            <div class="card order-card">
+                                <div class="card-header bg-white border-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-list-alt me-2 text-primary"></i>
+                                            Recent Orders
+                                        </h5>
+                                        <a href="{% url 'crm_orders' %}" class="btn btn-outline-primary btn-sm">
+                                            View All <i class="fas fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th>Order ID</th>
+                                                    <th>Customer</th>
+                                                    <th>Service</th>
+                                                    <th>Status</th>
+                                                    <th>Created</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for order in recent_orders %}
+                                                <tr>
+                                                    <td>
+                                                        <strong>{{ order.order_id }}</strong>
+                                                        {% if order.project_number %}
+                                                        <br><small class="text-muted">{{ order.project_number }}</small>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if order.user %}
+                                                            {{ order.user.get_full_name|default:order.user.email }}
+                                                        {% else %}
+                                                            {{ order.contact_name|default:"Anonymous" }}
+                                                        {% endif %}
+                                                        {% if order.company_name %}
+                                                        <br><small class="text-muted">{{ order.company_name }}</small>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% for item in order.items.all %}
+                                                            <span class="badge bg-secondary me-1">{{ item.get_service_type_display }}</span>
+                                                        {% endfor %}
+                                                    </td>
+                                                    <td>
+                                                        {% if order.status == 'pending' %}
+                                                            <span class="status-badge bg-warning text-dark">{{ order.get_status_display }}</span>
+                                                        {% elif order.status == 'reviewing' %}
+                                                            <span class="status-badge bg-info text-white">{{ order.get_status_display }}</span>
+                                                        {% elif order.status == 'in_production' %}
+                                                            <span class="status-badge bg-primary text-white">{{ order.get_status_display }}</span>
+                                                        {% elif order.status == 'completed' %}
+                                                            <span class="status-badge bg-success text-white">{{ order.get_status_display }}</span>
+                                                        {% else %}
+                                                            <span class="status-badge bg-secondary text-white">{{ order.get_status_display }}</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <small>{{ order.created_at|date:"M d, Y" }}</small>
+                                                        <br><small class="text-muted">{{ order.created_at|time:"H:i" }}</small>
+                                                    </td>
+                                                    <td>
+                                                        <a href="{% url 'crm_order_detail' order.order_id %}" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                {% empty %}
+                                                <tr>
+                                                    <td colspan="6" class="text-center py-4">
+                                                        <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                                                        <p class="text-muted mb-0">No orders yet</p>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Updates -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="card order-card">
+                                <div class="card-header bg-white border-0">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-comments me-2 text-success"></i>
+                                        Your Recent Updates
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    {% for update in recent_updates %}
+                                    <div class="d-flex mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                                        <div class="flex-shrink-0 me-3">
+                                            {% if update.update_type == 'status_change' %}
+                                                <i class="fas fa-exchange-alt text-primary"></i>
+                                            {% elif update.update_type == 'quote_sent' %}
+                                                <i class="fas fa-file-invoice text-success"></i>
+                                            {% elif update.update_type == 'issue' %}
+                                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                            {% else %}
+                                                <i class="fas fa-sticky-note text-info"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">{{ update.title }}</h6>
+                                            <p class="text-muted small mb-1">{{ update.description|truncatechars:60 }}</p>
+                                            <small class="text-muted">
+                                                <strong>{{ update.order.order_id }}</strong> • {{ update.created_at|timesince }} ago
+                                            </small>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="text-center py-3">
+                                        <i class="fas fa-comments fa-2x text-muted mb-2"></i>
+                                        <p class="text-muted mb-0">No recent updates</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card order-card">
+                                <div class="card-header bg-white border-0">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-bolt me-2 text-warning"></i>
+                                        Quick Actions
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3 mb-2">
+                                            <a href="{% url 'crm_orders' %}?status=pending" class="btn btn-outline-warning w-100">
+                                                <i class="fas fa-clock me-2"></i>Pending Orders
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <a href="{% url 'crm_orders' %}?status=reviewing" class="btn btn-outline-info w-100">
+                                                <i class="fas fa-search me-2"></i>Under Review
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <a href="{% url 'crm_orders' %}?order_type=bulk" class="btn btn-outline-primary w-100">
+                                                <i class="fas fa-industry me-2"></i>Bulk Orders
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <a href="{% url 'crm_analytics' %}" class="btn btn-outline-success w-100">
+                                                <i class="fas fa-chart-bar me-2"></i>View Reports
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

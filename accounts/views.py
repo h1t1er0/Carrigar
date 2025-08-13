@@ -105,6 +105,10 @@ def logout_view(request):
     logout(request)
     return JsonResponse({'success': True, 'message': 'Logged out successfully'})
 
+def login_page(request):
+    """Serve the login page"""
+    return render(request, 'accounts/login.html')
+
 def check_auth(request):
     if request.user.is_authenticated:
         return JsonResponse({

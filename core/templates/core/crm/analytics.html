@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrigar CRM - Analytics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            margin: 4px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+        .analytics-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .analytics-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .header-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="p-3">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-cogs me-2"></i>
+                        Carrigar CRM
+                    </h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{% url 'crm_dashboard' %}">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                        <a class="nav-link" href="{% url 'crm_orders' %}">
+                            <i class="fas fa-clipboard-list me-2"></i>Orders
+                        </a>
+                        <a class="nav-link" href="{% url 'crm_vendors' %}">
+                            <i class="fas fa-industry me-2"></i>Vendors
+                        </a>
+                        <a class="nav-link active" href="{% url 'crm_analytics' %}">
+                            <i class="fas fa-chart-bar me-2"></i>Analytics
+                        </a>
+                        <hr class="text-white-50">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="fas fa-home me-2"></i>Main Site
+                        </a>
+                        <a class="nav-link" href="/admin/">
+                            <i class="fas fa-cog me-2"></i>Django Admin
+                        </a>
+                        <a class="nav-link" href="/accounts/logout/">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <!-- Header -->
+                <div class="header-section">
+                    <div class="container-fluid">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h2 class="mb-1">
+                                    <i class="fas fa-chart-bar me-2"></i>
+                                    Analytics & Reports
+                                </h2>
+                                <p class="mb-0 opacity-75">Business insights and performance metrics</p>
+                            </div>
+                            <div class="col-auto">
+                                <div class="text-end">
+                                    <small class="opacity-75">Data from {{ start_date|date:"M d" }} to {{ end_date|date:"M d, Y" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container-fluid">
+                    <div class="row">
+                        <!-- Orders by Status -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="card analytics-card">
+                                <div class="card-header bg-white border-0">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-chart-pie me-2 text-primary"></i>
+                                        Orders by Status
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="statusChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Orders by Service Type -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="card analytics-card">
+                                <div class="card-header bg-white border-0">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-chart-donut me-2 text-success"></i>
+                                        Orders by Service Type
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="serviceChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Orders Timeline -->
+                        <div class="col-12 mb-4">
+                            <div class="card analytics-card">
+                                <div class="card-header bg-white border-0">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-chart-line me-2 text-info"></i>
+                                        Orders Timeline (Last 30 Days)
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="timelineChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- OTIF Performance -->
+                        <div class="col-lg-12 mb-4">
+                            <div class="card analytics-card">
+                                <div class="card-header bg-white border-0">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-bullseye me-2 text-success"></i>
+                                        OTIF (On-Time In-Full) Performance
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center mb-4">
+                                        <div class="col-md-3">
+                                            <div class="p-3 bg-light rounded">
+                                                <h3 class="text-success mb-1">{{ overall_otif }}%</h3>
+                                                <small class="text-muted">Overall OTIF</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="p-3 bg-light rounded">
+                                                <h3 class="text-primary mb-1">{{ vendor_performance|length }}</h3>
+                                                <small class="text-muted">Active Vendors</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="p-3 bg-light rounded">
+                                                <h3 class="text-warning mb-1">
+                                                    {% for vendor in vendor_performance %}
+                                                        {% if vendor.otif >= 90 %}{{ forloop.counter }}{% endif %}
+                                                    {% endfor %}
+                                                </h3>
+                                                <small class="text-muted">Top Performers (≥90%)</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="p-3 bg-light rounded">
+                                                <h3 class="text-info mb-1">
+                                                    {% for vendor in vendor_performance %}
+                                                        {{ vendor.total_orders|add:0 }}{% if not forloop.last %}+{% endif %}
+                                                    {% endfor %}
+                                                </h3>
+                                                <small class="text-muted">Total Vendor Orders</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if vendor_performance %}
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Vendor</th>
+                                                    <th>OTIF %</th>
+                                                    <th>Total Orders</th>
+                                                    <th>Completed</th>
+                                                    <th>Performance</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for vendor in vendor_performance %}
+                                                <tr>
+                                                    <td><strong>{{ vendor.vendor }}</strong></td>
+                                                    <td>
+                                                        <span class="badge {% if vendor.otif >= 90 %}bg-success{% elif vendor.otif >= 75 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                            {{ vendor.otif }}%
+                                                        </span>
+                                                    </td>
+                                                    <td>{{ vendor.total_orders }}</td>
+                                                    <td>{{ vendor.completed_orders }}</td>
+                                                    <td>
+                                                        <div class="progress" style="height: 8px;">
+                                                            <div class="progress-bar {% if vendor.otif >= 90 %}bg-success{% elif vendor.otif >= 75 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                                 style="width: {{ vendor.otif }}%"></div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% else %}
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-chart-line fa-2x text-muted mb-2"></i>
+                                        <p class="text-muted mb-0">No vendor performance data available</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Top Customers -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="card analytics-card">
+                                <div class="card-header bg-white border-0">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-users me-2 text-warning"></i>
+                                        Top Customers
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    {% if top_customers %}
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Customer</th>
+                                                    <th>Email</th>
+                                                    <th>Orders</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for customer in top_customers %}
+                                                <tr>
+                                                    <td>
+                                                        <strong>{{ customer.user__first_name }} {{ customer.user__last_name }}</strong>
+                                                    </td>
+                                                    <td>{{ customer.user__email }}</td>
+                                                    <td>
+                                                        <span class="badge bg-primary">{{ customer.order_count }}</span>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% else %}
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                                        <p class="text-muted mb-0">No customer data available</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="card analytics-card">
+                                <div class="card-header bg-white border-0">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-tachometer-alt me-2 text-danger"></i>
+                                        Quick Statistics
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-6 mb-3">
+                                            <div class="p-3 bg-light rounded">
+                                                <h4 class="text-primary mb-1">{{ status_data|length }}</h4>
+                                                <small class="text-muted">Status Types</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-3">
+                                            <div class="p-3 bg-light rounded">
+                                                <h4 class="text-success mb-1">{{ service_data|length }}</h4>
+                                                <small class="text-muted">Service Types</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="p-3 bg-light rounded">
+                                                <h4 class="text-info mb-1">{{ top_customers|length }}</h4>
+                                                <small class="text-muted">Active Customers</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="p-3 bg-light rounded">
+                                                <h4 class="text-warning mb-1">30</h4>
+                                                <small class="text-muted">Days Tracked</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Status Chart
+        const statusData = {{ status_data|safe }};
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: statusData.map(item => item.status),
+                datasets: [{
+                    data: statusData.map(item => item.count),
+                    backgroundColor: [
+                        '#ffc107', '#17a2b8', '#007bff', '#28a745',
+                        '#343a40', '#6c757d', '#dc3545'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Service Chart
+        const serviceData = {{ service_data|safe }};
+        const serviceCtx = document.getElementById('serviceChart').getContext('2d');
+        new Chart(serviceCtx, {
+            type: 'pie',
+            data: {
+                labels: serviceData.map(item => item.service),
+                datasets: [{
+                    data: serviceData.map(item => item.count),
+                    backgroundColor: [
+                        '#28a745', '#007bff', '#ffc107', '#dc3545', '#6f42c1'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Timeline Chart
+        const timelineData = {{ orders_timeline|safe }};
+        const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+        new Chart(timelineCtx, {
+            type: 'line',
+            data: {
+                labels: timelineData.map(item => item.date),
+                datasets: [{
+                    label: 'Orders',
+                    data: timelineData.map(item => item.count),
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxTicksLimit: 10
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

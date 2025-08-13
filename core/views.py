@@ -9,7 +9,17 @@ import json
 # Create your views here.
 
 def home(request):
-    return render(request, 'core/home.html')
+    context = {}
+    # Check if user is a project manager
+    if request.user.is_authenticated:
+        try:
+            context['is_project_manager'] = hasattr(request.user, 'projectmanager') and request.user.projectmanager.is_active
+        except:
+            context['is_project_manager'] = False
+    else:
+        context['is_project_manager'] = False
+    
+    return render(request, 'core/home.html', context)
 
 def services(request):
     return render(request, 'core/services.html')

@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrigar CRM - Order {{ order.order_id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            margin: 4px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: none;
+        }
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .header-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e9ecef;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 8px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #6c757d;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #e9ecef;
+        }
+        .timeline-item.status-change::before {
+            background: #0d6efd;
+        }
+        .timeline-item.quote-sent::before {
+            background: #198754;
+        }
+        .timeline-item.issue::before {
+            background: #dc3545;
+        }
+        .timeline-item.note::before {
+            background: #6f42c1;
+        }
+        .file-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        .file-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="p-3">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-cogs me-2"></i>
+                        Carrigar CRM
+                    </h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{% url 'crm_dashboard' %}">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                        <a class="nav-link" href="{% url 'crm_orders' %}">
+                            <i class="fas fa-clipboard-list me-2"></i>Orders
+                        </a>
+                        <a class="nav-link" href="{% url 'crm_vendors' %}">
+                            <i class="fas fa-industry me-2"></i>Vendors
+                        </a>
+                        <a class="nav-link" href="{% url 'crm_analytics' %}">
+                            <i class="fas fa-chart-bar me-2"></i>Analytics
+                        </a>
+                        <hr class="text-white-50">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="fas fa-home me-2"></i>Main Site
+                        </a>
+                        <a class="nav-link" href="/admin/">
+                            <i class="fas fa-cog me-2"></i>Django Admin
+                        </a>
+                        <a class="nav-link" href="/accounts/logout/">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <!-- Header -->
+                <div class="header-section">
+                    <div class="container-fluid">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h2 class="mb-1">
+                                    <i class="fas fa-clipboard-check me-2"></i>
+                                    Order {{ order.order_id }}
+                                </h2>
+                                <p class="mb-0 opacity-75">
+                                    {% if order.project_number %}{{ order.project_number }} • {% endif %}
+                                    Created {{ order.created_at|date:"M d, Y H:i" }}
+                                </p>
+                            </div>
+                            <div class="col-auto">
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if order.status == 'pending' %}
+                                        <span class="status-badge bg-warning text-dark">{{ order.get_status_display }}</span>
+                                    {% elif order.status == 'reviewing' %}
+                                        <span class="status-badge bg-info text-white">{{ order.get_status_display }}</span>
+                                    {% elif order.status == 'quoted' %}
+                                        <span class="status-badge bg-primary text-white">{{ order.get_status_display }}</span>
+                                    {% elif order.status == 'confirmed' %}
+                                        <span class="status-badge bg-success text-white">{{ order.get_status_display }}</span>
+                                    {% elif order.status == 'in_production' %}
+                                        <span class="status-badge bg-dark text-white">{{ order.get_status_display }}</span>
+                                    {% elif order.status == 'completed' %}
+                                        <span class="status-badge bg-success text-white">{{ order.get_status_display }}</span>
+                                    {% elif order.status == 'cancelled' %}
+                                        <span class="status-badge bg-danger text-white">{{ order.get_status_display }}</span>
+                                    {% else %}
+                                        <span class="status-badge bg-secondary text-white">{{ order.get_status_display }}</span>
+                                    {% endif %}
+                                    <button class="btn btn-light btn-sm" onclick="updateOrderStatus()">
+                                        <i class="fas fa-edit me-1"></i>Update Status
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container-fluid">
+                    <div class="row">
+                        <!-- Order Information -->
+                        <div class="col-lg-4 mb-4">
+                            <!-- Customer Info -->
+                            <div class="card info-card mb-3">
+                                <div class="card-header bg-white border-0">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-user me-2 text-primary"></i>
+                                        Customer Information
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    {% if order.user %}
+                                    <div class="mb-2">
+                                        <strong>{{ order.user.get_full_name|default:order.user.username }}</strong>
+                                        <br><small class="text-muted">{{ order.user.email }}</small>
+                                    </div>
+                                    {% else %}
+                                    <div class="mb-2">
+                                        <strong>{{ order.contact_name|default:"Anonymous Customer" }}</strong>
+                                        {% if order.contact_email %}
+                                        <br><small class="text-muted">{{ order.contact_email }}</small>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if order.contact_phone %}
+                                    <div class="mb-2">
+                                        <i class="fas fa-phone me-2 text-muted"></i>{{ order.contact_phone }}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if order.company_name %}
+                                    <div class="mb-2">
+                                        <i class="fas fa-building me-2 text-muted"></i>{{ order.company_name }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Order Details -->
+                            <div class="card info-card mb-3">
+                                <div class="card-header bg-white border-0">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-info-circle me-2 text-primary"></i>
+                                        Order Details
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-2">
+                                        <div class="col-6">
+                                            <small class="text-muted">Order Type</small>
+                                            <br><span class="badge {% if order.order_type == 'bulk' %}bg-info{% else %}bg-secondary{% endif %}">
+                                                {{ order.get_order_type_display }}
+                                            </span>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Total Amount</small>
+                                            <br><strong>{% if order.total_amount %}₹{{ order.total_amount }}{% else %}TBD{% endif %}</strong>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-2">
+                                        <div class="col-6">
+                                            <small class="text-muted">Expected Completion</small>
+                                            <br>{% if order.expected_completion_date %}
+                                                <span class="text-primary">{{ order.expected_completion_date|date:"M d, Y" }}</span>
+                                            {% else %}
+                                                <span class="text-muted">Not set</span>
+                                                <button class="btn btn-sm btn-outline-primary ms-2" onclick="setExpectedDate()">
+                                                    <i class="fas fa-calendar-plus"></i> Set Date
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Actual Completion</small>
+                                            <br>{% if order.actual_completion_date %}
+                                                <span class="{% if order.is_on_time %}text-success{% else %}text-danger{% endif %}">
+                                                    {{ order.actual_completion_date|date:"M d, Y" }}
+                                                    {% if order.is_on_time %}
+                                                        <i class="fas fa-check-circle ms-1"></i>
+                                                    {% elif order.is_on_time == False %}
+                                                        <i class="fas fa-exclamation-triangle ms-1"></i>
+                                                    {% endif %}
+                                                </span>
+                                                <button class="btn btn-sm btn-outline-secondary ms-2" onclick="updateCompletionDate()">
+                                                    <i class="fas fa-edit"></i> Update
+                                                </button>
+                                            {% else %}
+                                                <span class="text-muted">Pending</span>
+                                                {% if order.status == 'completed' %}
+                                                    <button class="btn btn-sm btn-outline-primary ms-2" onclick="updateCompletionDate()">
+                                                        <i class="fas fa-calendar-check"></i> Set Date
+                                                    </button>
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    {% if order.notes %}
+                                    <div class="mt-3">
+                                        <small class="text-muted">Notes</small>
+                                        <br><small>{{ order.notes }}</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Services -->
+                            <div class="card info-card mb-3">
+                                <div class="card-header bg-white border-0">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-cogs me-2 text-primary"></i>
+                                        Services Requested
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    {% for item in order.items.all %}
+                                    <div class="mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong>{{ item.get_service_type_display }}</strong>
+                                                {% if item.description %}
+                                                <br><small class="text-muted">{{ item.description }}</small>
+                                                {% endif %}
+                                            </div>
+                                            <span class="badge bg-light text-dark">Qty: {{ item.quantity }}</span>
+                                        </div>
+                                        {% if item.unit_price %}
+                                        <div class="mt-2">
+                                            <small class="text-muted">Unit Price: ₹{{ item.unit_price }}</small>
+                                            {% if item.total_price %}
+                                            <br><small class="text-success">Total: ₹{{ item.total_price }}</small>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% empty %}
+                                    <p class="text-muted mb-0">No services specified</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Files -->
+                            <div class="card info-card">
+                                <div class="card-header bg-white border-0">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-file me-2 text-primary"></i>
+                                        Uploaded Files ({{ order.files.count }})
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    {% for file in order.files.all %}
+                                    <div class="file-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="flex-grow-1">
+                                                <strong class="text-primary">{{ file.original_filename }}</strong>
+                                                <br><small class="text-muted">
+                                                    {{ file.file_size|filesizeformat }} • {{ file.uploaded_at|date:"M d, Y H:i" }}
+                                                </small>
+                                            </div>
+                                            <a href="{{ file.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p class="text-muted mb-0">No files uploaded</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vendor Assignment -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="card info-card">
+                                <div class="card-header bg-white border-0">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-industry me-2 text-primary"></i>
+                                        Vendor Assignment
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    {% if current_assignment %}
+                                    <div class="mb-3">
+                                        <strong>Current Vendor:</strong>
+                                        <br><a href="{% url 'crm_vendor_detail' current_assignment.vendor.id %}" class="text-decoration-none">
+                                            {{ current_assignment.vendor.company_name }}
+                                        </a>
+                                        <br><small class="text-muted">{{ current_assignment.vendor.vendor_code }}</small>
+                                    </div>
+                                    
+                                    {% if current_assignment.expected_delivery_date %}
+                                    <div class="mb-2">
+                                        <small><strong>Expected Delivery:</strong> {{ current_assignment.expected_delivery_date|date:"M d, Y" }}</small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if current_assignment.dispatch_date %}
+                                    <div class="mb-2">
+                                        <small><strong>Dispatch Date:</strong> {{ current_assignment.dispatch_date|date:"M d, Y" }}</small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if current_assignment.actual_delivery_date %}
+                                    <div class="mb-2">
+                                        <small><strong>Actual Delivery:</strong> {{ current_assignment.actual_delivery_date|date:"M d, Y" }}</small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="mb-3">
+                                        <span class="badge 
+                                            {% if current_assignment.get_delivery_status == 'OTIF' %}bg-success
+                                            {% elif current_assignment.get_delivery_status == 'On Time' %}bg-info
+                                            {% elif current_assignment.get_delivery_status == 'Pending' %}bg-warning
+                                            {% elif current_assignment.get_delivery_status == 'Overdue' %}bg-danger
+                                            {% else %}bg-secondary
+                                            {% endif %}">
+                                            {{ current_assignment.get_delivery_status }}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary btn-sm" onclick="changeVendor()">
+                                            <i class="fas fa-exchange-alt me-1"></i>Change Vendor
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm" onclick="updateDelivery()">
+                                            <i class="fas fa-truck me-1"></i>Update Delivery
+                                        </button>
+                                    </div>
+                                    {% else %}
+                                    <div class="text-center py-3">
+                                        <i class="fas fa-industry fa-2x text-muted mb-2"></i>
+                                        <p class="text-muted mb-3">No vendor assigned</p>
+                                        <button class="btn btn-primary btn-sm" onclick="assignVendor()">
+                                            <i class="fas fa-plus me-1"></i>Assign Vendor
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Timeline -->
+                        <div class="col-lg-8 mb-4">
+                            <div class="card info-card">
+                                <div class="card-header bg-white border-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-history me-2 text-primary"></i>
+                                            Order Timeline & Updates
+                                        </h6>
+                                        <button class="btn btn-primary btn-sm" onclick="addOrderUpdate()">
+                                            <i class="fas fa-plus me-1"></i>Add Update
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="timeline">
+                                        {% for update in updates %}
+                                        <div class="timeline-item {{ update.update_type }}">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-1">{{ update.title }}</h6>
+                                                <small class="text-muted">{{ update.created_at|date:"M d, Y H:i" }}</small>
+                                            </div>
+                                            <p class="text-muted mb-2">{{ update.description }}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-user me-1"></i>{{ update.project_manager.user.get_full_name }}
+                                                    • <span class="badge badge-sm {% if update.update_type == 'status_change' %}bg-primary{% elif update.update_type == 'quote_sent' %}bg-success{% elif update.update_type == 'issue' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                                        {{ update.get_update_type_display }}
+                                                    </span>
+                                                </small>
+                                                {% if update.is_customer_visible %}
+                                                <small class="text-success">
+                                                    <i class="fas fa-eye me-1"></i>Customer Visible
+                                                </small>
+                                                {% else %}
+                                                <small class="text-muted">
+                                                    <i class="fas fa-eye-slash me-1"></i>Internal Only
+                                                </small>
+                                                {% endif %}
+                                            </div>
+                                            {% if update.old_status and update.new_status %}
+                                            <div class="mt-2">
+                                                <small class="text-info">
+                                                    Status changed from <strong>{{ update.old_status|title }}</strong> to <strong>{{ update.new_status|title }}</strong>
+                                                </small>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        {% empty %}
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-history fa-2x text-muted mb-2"></i>
+                                            <p class="text-muted mb-0">No updates yet. Add the first update to track progress.</p>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Status Modal -->
+    <div class="modal fade" id="statusModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Order Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="statusForm">
+                        <input type="hidden" name="order_id" value="{{ order.order_id }}">
+                        <div class="mb-3">
+                            <label class="form-label">New Status</label>
+                            <select name="new_status" class="form-select" required>
+                                {% for value, display in status_choices %}
+                                <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ display }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Update Title</label>
+                            <input type="text" name="title" class="form-control" placeholder="Brief description of the update" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3" placeholder="Detailed description of the status change..." required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitStatusUpdate()">Update Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Update Modal -->
+    <div class="modal fade" id="updateModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Order Update</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateForm">
+                        <input type="hidden" name="order_id" value="{{ order.order_id }}">
+                        <div class="mb-3">
+                            <label class="form-label">Update Type</label>
+                            <select name="update_type" class="form-select" required>
+                                {% for value, display in update_types %}
+                                <option value="{{ value }}">{{ display }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" name="title" class="form-control" placeholder="Update title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="4" placeholder="Detailed description of the update..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_customer_visible" id="customerVisible">
+                                <label class="form-check-label" for="customerVisible">
+                                    Make this update visible to customer
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitOrderUpdate()">Add Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Vendor Modal -->
+    <div class="modal fade" id="vendorModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Vendor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="vendorForm">
+                        <input type="hidden" name="order_id" value="{{ order.order_id }}">
+                        <div class="mb-3">
+                            <label class="form-label">Select Vendor</label>
+                            <select name="vendor_id" class="form-select" required>
+                                <option value="">Choose a vendor...</option>
+                                {% for vendor in available_vendors %}
+                                <option value="{{ vendor.id }}" 
+                                        data-company="{{ vendor.company_name }}"
+                                        data-primary="{{ vendor.get_primary_service_display }}"
+                                        data-rating="{{ vendor.rating }}"
+                                        data-otif="{{ vendor.calculate_otif_percentage }}">
+                                    {{ vendor.vendor_code }} - {{ vendor.company_name }} ({{ vendor.get_primary_service_display }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Expected Delivery Date</label>
+                            <input type="date" name="expected_delivery_date" class="form-control">
+                        </div>
+                        <div id="vendorInfo" class="mb-3" style="display: none;">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6>Vendor Information:</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small><strong>Primary Service:</strong> <span id="vendorService"></span></small>
+                                        </div>
+                                        <div class="col-6">
+                                            <small><strong>Rating:</strong> <span id="vendorRating"></span>/5</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <small><strong>OTIF Performance:</strong> <span id="vendorOTIF"></span>%</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitVendorAssignment()">Assign Vendor</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Delivery Modal -->
+    <div class="modal fade" id="deliveryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Delivery Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="deliveryForm">
+                        <input type="hidden" name="assignment_id" value="{% if current_assignment %}{{ current_assignment.id }}{% endif %}">
+                        <div class="mb-3">
+                            <label class="form-label">Dispatch Date</label>
+                            <input type="date" name="dispatch_date" class="form-control" 
+                                   value="{% if current_assignment.dispatch_date %}{{ current_assignment.dispatch_date|date:'Y-m-d' }}{% endif %}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Actual Delivery Date</label>
+                            <input type="date" name="actual_delivery_date" class="form-control"
+                                   value="{% if current_assignment.actual_delivery_date %}{{ current_assignment.actual_delivery_date|date:'Y-m-d' }}{% endif %}">
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_in_full" id="isInFull"
+                                       {% if current_assignment.is_in_full %}checked{% endif %}>
+                                <label class="form-check-label" for="isInFull">
+                                    Delivery was complete (In Full)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quality Rating</label>
+                            <select name="quality_rating" class="form-select">
+                                <option value="">Select rating...</option>
+                                {% for i in "12345" %}
+                                <option value="{{ i }}" {% if current_assignment.quality_rating == i|floatformat:0 %}selected{% endif %}>{{ i }} Star{{ i|add:0|pluralize }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Delivery Notes</label>
+                            <textarea name="delivery_notes" class="form-control" rows="3" 
+                                      placeholder="Any additional notes about the delivery...">{% if current_assignment %}{{ current_assignment.delivery_notes }}{% endif %}</textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitDeliveryUpdate()">Update Delivery</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function updateOrderStatus() {
+            const modal = new bootstrap.Modal(document.getElementById('statusModal'));
+            modal.show();
+        }
+
+        function addOrderUpdate() {
+            const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+            modal.show();
+        }
+
+        function submitStatusUpdate() {
+            const formData = new FormData(document.getElementById('statusForm'));
+            const data = Object.fromEntries(formData.entries());
+            
+            fetch('/crm/update-order-status/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the status.');
+            });
+        }
+
+        function submitOrderUpdate() {
+            const formData = new FormData(document.getElementById('updateForm'));
+            const data = Object.fromEntries(formData.entries());
+            data.is_customer_visible = document.getElementById('customerVisible').checked;
+            
+            fetch('/crm/add-order-update/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the update.');
+            });
+        }
+
+        function assignVendor() {
+            const modal = new bootstrap.Modal(document.getElementById('vendorModal'));
+            modal.show();
+        }
+
+        function changeVendor() {
+            assignVendor(); // Same modal, different context
+        }
+
+        function updateDelivery() {
+            const modal = new bootstrap.Modal(document.getElementById('deliveryModal'));
+            modal.show();
+        }
+
+        // Show vendor info when vendor is selected
+        document.addEventListener('DOMContentLoaded', function() {
+            const vendorSelect = document.querySelector('select[name="vendor_id"]');
+            if (vendorSelect) {
+                vendorSelect.addEventListener('change', function() {
+                    const option = this.options[this.selectedIndex];
+                    const infoDiv = document.getElementById('vendorInfo');
+                    
+                    if (this.value) {
+                        document.getElementById('vendorService').textContent = option.dataset.primary;
+                        document.getElementById('vendorRating').textContent = option.dataset.rating;
+                        document.getElementById('vendorOTIF').textContent = option.dataset.otif;
+                        infoDiv.style.display = 'block';
+                    } else {
+                        infoDiv.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        function submitVendorAssignment() {
+            const formData = new FormData(document.getElementById('vendorForm'));
+            const data = Object.fromEntries(formData.entries());
+            
+            fetch('/crm/assign-vendor/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while assigning the vendor.');
+            });
+        }
+
+        function submitDeliveryUpdate() {
+            const formData = new FormData(document.getElementById('deliveryForm'));
+            const data = Object.fromEntries(formData.entries());
+            data.is_in_full = document.getElementById('isInFull').checked;
+            
+            fetch('/crm/update-delivery/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating delivery information.');
+            });
+        }
+
+        // Set expected completion date
+        function setExpectedDate() {
+            const modal = document.getElementById('setExpectedDateModal');
+            const dateInput = document.getElementById('expected_completion_date');
+            
+            modal.style.display = 'block';
+            
+            // Focus the date input after a short delay to ensure modal is visible
+            setTimeout(() => {
+                dateInput.focus();
+                dateInput.click(); // Try to open the date picker
+            }, 100);
+        }
+
+        function closeExpectedDateModal() {
+            document.getElementById('setExpectedDateModal').style.display = 'none';
+        }
+
+        function submitExpectedDate() {
+            const expectedDate = document.getElementById('expected_completion_date').value;
+            
+            if (!expectedDate) {
+                alert('Please select an expected completion date.');
+                return;
+            }
+
+            console.log('Submitting expected date:', expectedDate);
+
+            // Get CSRF token from the meta tag or cookie
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                             document.querySelector('input[name="csrfmiddlewaretoken"]')?.value ||
+                             getCookie('csrftoken');
+
+            if (!csrfToken) {
+                alert('CSRF token not found. Please refresh the page and try again.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            formData.append('order_id', '{{ order.order_id }}');
+            formData.append('expected_completion_date', expectedDate);
+
+            console.log('Sending request to:', '{% url "crm_set_expected_date" %}');
+
+            fetch('{% url "crm_set_expected_date" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    alert('Expected completion date set successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while setting expected completion date: ' + error.message);
+            });
+        }
+
+        // Helper function to get cookie value
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Update actual completion date
+        function updateCompletionDate() {
+            const modal = document.getElementById('updateCompletionDateModal');
+            const dateInput = document.getElementById('actual_completion_date');
+            
+            modal.style.display = 'block';
+            // Set today's date as default
+            dateInput.value = new Date().toISOString().split('T')[0];
+            
+            // Focus the date input after a short delay
+            setTimeout(() => {
+                dateInput.focus();
+                dateInput.click(); // Try to open the date picker
+            }, 100);
+        }
+
+        function closeCompletionDateModal() {
+            document.getElementById('updateCompletionDateModal').style.display = 'none';
+        }
+
+        function submitCompletionDate() {
+            const actualDate = document.getElementById('actual_completion_date').value;
+            
+            if (!actualDate) {
+                alert('Please select an actual completion date.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+            formData.append('order_id', '{{ order.order_id }}');
+            formData.append('actual_completion_date', actualDate);
+
+            fetch('{% url "crm_set_actual_date" %}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while setting actual completion date.');
+            });
+        }
+    </script>
+
+    <!-- Set Expected Date Modal -->
+    <div id="setExpectedDateModal" onclick="closeExpectedDateModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
+        <div onclick="event.stopPropagation()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; max-width: 90%; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 0; overflow: hidden;">
+            <div style="padding: 20px; border-bottom: 1px solid #dee2e6;">
+                <h5 style="margin: 0; color: #333;">Set Expected Completion Date</h5>
+                <button type="button" onclick="closeExpectedDateModal()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer;">&times;</button>
+            </div>
+            <div style="padding: 20px;">
+                <div style="margin-bottom: 15px;">
+                    <label for="expected_completion_date" style="display: block; margin-bottom: 8px; font-weight: 500; color: #555;">Expected Completion Date</label>
+                    <input type="date" id="expected_completion_date" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white;">
+                </div>
+            </div>
+            <div style="padding: 20px; border-top: 1px solid #dee2e6; text-align: right;">
+                <button type="button" onclick="closeExpectedDateModal()" style="padding: 8px 16px; margin-right: 10px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">Cancel</button>
+                <button type="button" onclick="submitExpectedDate()" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">Set Date</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Completion Date Modal -->
+    <div id="updateCompletionDateModal" onclick="closeCompletionDateModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
+        <div onclick="event.stopPropagation()" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; max-width: 90%; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 0; overflow: hidden;">
+            <div style="padding: 20px; border-bottom: 1px solid #dee2e6;">
+                <h5 style="margin: 0; color: #333;">Set Actual Completion Date</h5>
+                <button type="button" onclick="closeCompletionDateModal()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer;">&times;</button>
+            </div>
+            <div style="padding: 20px;">
+                <div style="margin-bottom: 15px;">
+                    <label for="actual_completion_date" style="display: block; margin-bottom: 8px; font-weight: 500; color: #555;">Actual Completion Date</label>
+                    <input type="date" id="actual_completion_date" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white;">
+                </div>
+            </div>
+            <div style="padding: 20px; border-top: 1px solid #dee2e6; text-align: right;">
+                <button type="button" onclick="closeCompletionDateModal()" style="padding: 8px 16px; margin-right: 10px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">Cancel</button>
+                <button type="button" onclick="submitCompletionDate()" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">Set Date</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrigar CRM - {{ vendor.company_name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            margin: 4px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: none;
+        }
+        .header-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .rating-stars {
+            color: #ffc107;
+        }
+        .machine-badge {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 2px;
+            display: inline-block;
+        }
+        .otif-progress {
+            height: 20px;
+            border-radius: 10px;
+        }
+        .assignment-card {
+            border-left: 4px solid;
+            margin-bottom: 15px;
+        }
+        .assignment-card.otif { border-left-color: #28a745; }
+        .assignment-card.on-time { border-left-color: #17a2b8; }
+        .assignment-card.late { border-left-color: #dc3545; }
+        .assignment-card.pending { border-left-color: #ffc107; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="p-3">
+                    <h4 class="text-white mb-4">
+                        <i class="fas fa-cogs me-2"></i>
+                        Carrigar CRM
+                    </h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{% url 'crm_dashboard' %}">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                        <a class="nav-link" href="{% url 'crm_orders' %}">
+                            <i class="fas fa-clipboard-list me-2"></i>Orders
+                        </a>
+                        <a class="nav-link" href="{% url 'crm_vendors' %}">
+                            <i class="fas fa-industry me-2"></i>Vendors
+                        </a>
+                        <a class="nav-link" href="{% url 'crm_analytics' %}">
+                            <i class="fas fa-chart-bar me-2"></i>Analytics
+                        </a>
+                        <hr class="text-white-50">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="fas fa-home me-2"></i>Main Site
+                        </a>
+                        <a class="nav-link" href="/admin/">
+                            <i class="fas fa-cog me-2"></i>Django Admin
+                        </a>
+                        <a class="nav-link" href="/accounts/logout/">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <!-- Header -->
+                <div class="header-section">
+                    <div class="container-fluid">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h2 class="mb-1">
+                                    <i class="fas fa-industry me-2"></i>
+                                    {{ vendor.company_name }}
+                                </h2>
+                                <p class="mb-0 opacity-75">
+                                    {{ vendor.vendor_code }} • {{ vendor.get_primary_service_display }}
+                                </p>
+                            </div>
+                            <div class="col-auto">
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if vendor.status == 'active' %}
+                                        <span class="status-badge bg-success text-white">{{ vendor.get_status_display }}</span>
+                                    {% elif vendor.status == 'inactive' %}
+                                        <span class="status-badge bg-secondary text-white">{{ vendor.get_status_display }}</span>
+                                    {% elif vendor.status == 'on_hold' %}
+                                        <span class="status-badge bg-warning text-dark">{{ vendor.get_status_display }}</span>
+                                    {% else %}
+                                        <span class="status-badge bg-danger text-white">{{ vendor.get_status_display }}</span>
+                                    {% endif %}
+                                    <a href="{% url 'crm_vendor_edit' vendor.id %}" class="btn btn-light btn-sm">
+                                        <i class="fas fa-edit me-1"></i>Edit Vendor
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container-fluid">
+                    <div class="row">
+                        <!-- Vendor Information -->
+                        <div class="col-lg-4 mb-4">
+                            <!-- Contact Info -->
+                            <div class="card info-card mb-3">
+                                <div class="card-header bg-white border-0">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-address-card me-2 text-primary"></i>
+                                        Contact Information
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <strong>{{ vendor.contact_person }}</strong>
+                                        <br><small class="text-muted">Contact Person</small>
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <i class="fas fa-envelope me-2 text-muted"></i>{{ vendor.email }}
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <i class="fas fa-phone me-2 text-muted"></i>{{ vendor.phone }}
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <i class="fas fa-map-marker-alt me-2 text-muted"></i>{{ vendor.address }}
+                                    </div>
+                                    
+                                    {% if vendor.gst_number %}
+                                    <div class="mb-2">
+                                        <i class="fas fa-file-invoice me-2 text-muted"></i>GST: {{ vendor.gst_number }}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if vendor.pan_number %}
+                                    <div class="mb-2">
+                                        <i class="fas fa-id-card me-2 text-muted"></i>PAN: {{ vendor.pan_number }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Capabilities -->
+                            <div class="card info-card mb-3">
+                                <div class="card-header bg-white border-0">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-cogs me-2 text-primary"></i>
+                                        Manufacturing Capabilities
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <strong>Primary Service:</strong>
+                                        <br><span class="machine-badge">{{ vendor.get_primary_service_display }}</span>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <strong>Available Machines:</strong>
+                                        <br>
+                                        {% if vendor.has_tube_laser %}
+                                        <span class="machine-badge"><i class="fas fa-cut me-1"></i>Tube Laser</span>
+                                        {% endif %}
+                                        {% if vendor.has_sheet_laser %}
+                                        <span class="machine-badge"><i class="fas fa-layer-group me-1"></i>Sheet Laser</span>
+                                        {% endif %}
+                                        {% if vendor.has_cnc_machining %}
+                                        <span class="machine-badge"><i class="fas fa-cog me-1"></i>CNC Machining</span>
+                                        {% endif %}
+                                        {% if vendor.has_vmc_machining %}
+                                        <span class="machine-badge"><i class="fas fa-industry me-1"></i>VMC Machining</span>
+                                        {% endif %}
+                                        {% if vendor.has_3d_printing %}
+                                        <span class="machine-badge"><i class="fas fa-cube me-1"></i>3D Printing</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    {% if vendor.max_material_thickness %}
+                                    <div class="mb-2">
+                                        <small><strong>Max Material Thickness:</strong> {{ vendor.max_material_thickness }}</small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if vendor.material_types %}
+                                    <div class="mb-2">
+                                        <small><strong>Materials:</strong> {{ vendor.material_types }}</small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if vendor.production_capacity %}
+                                    <div class="mb-2">
+                                        <small><strong>Capacity:</strong> {{ vendor.production_capacity }}</small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if vendor.quality_certifications %}
+                                    <div class="mb-3">
+                                        <small><strong>Certifications:</strong> {{ vendor.quality_certifications }}</small>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="mb-2">
+                                        <strong>Overall Rating:</strong>
+                                        <br>
+                                        <div class="rating-stars d-inline-block me-2">
+                                            {% for i in "12345" %}
+                                                {% if vendor.rating >= i|floatformat:0 %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <span class="text-muted">{{ vendor.rating|floatformat:1 }}/5</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Performance Metrics -->
+                            <div class="card info-card">
+                                <div class="card-header bg-white border-0">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-chart-line me-2 text-success"></i>
+                                        Performance Metrics
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center mb-3">
+                                        <div class="col-4">
+                                            <div class="text-primary">
+                                                <strong>{{ total_assignments }}</strong>
+                                                <br><small class="text-muted">Total Orders</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="text-success">
+                                                <strong>{{ completed_assignments }}</strong>
+                                                <br><small class="text-muted">Completed</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="text-warning">
+                                                <strong>{{ otif_assignments }}</strong>
+                                                <br><small class="text-muted">OTIF</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <div class="d-flex justify-content-between">
+                                            <small><strong>OTIF Performance</strong></small>
+                                            <small><strong>{{ otif_percentage }}%</strong></small>
+                                        </div>
+                                        <div class="progress otif-progress">
+                                            <div class="progress-bar {% if otif_percentage >= 90 %}bg-success{% elif otif_percentage >= 75 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                 style="width: {{ otif_percentage }}%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Vendor since {{ vendor.created_at|date:"M d, Y" }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Assignments -->
+                        <div class="col-lg-8 mb-4">
+                            <div class="card info-card">
+                                <div class="card-header bg-white border-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-tasks me-2 text-primary"></i>
+                                            Order Assignments ({{ assignments.count }})
+                                        </h6>
+                                        <small class="text-muted">Recent assignments and delivery performance</small>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    {% for assignment in assignments %}
+                                    <div class="card assignment-card {{ assignment.get_delivery_status|lower }}">
+                                        <div class="card-body">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-3">
+                                                    <strong class="text-primary">{{ assignment.order.order_id }}</strong>
+                                                    {% if assignment.order.project_number %}
+                                                    <br><small class="text-muted">{{ assignment.order.project_number }}</small>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <span class="badge bg-secondary">{{ assignment.order.get_order_type_display }}</span>
+                                                    <br><small class="text-muted">{{ assignment.order.get_status_display }}</small>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    {% if assignment.expected_delivery_date %}
+                                                    <small><strong>Expected:</strong> {{ assignment.expected_delivery_date|date:"M d, Y" }}</small>
+                                                    {% endif %}
+                                                    {% if assignment.actual_delivery_date %}
+                                                    <br><small><strong>Delivered:</strong> {{ assignment.actual_delivery_date|date:"M d, Y" }}</small>
+                                                    {% endif %}
+                                                    {% if assignment.dispatch_date %}
+                                                    <br><small><strong>Dispatched:</strong> {{ assignment.dispatch_date|date:"M d, Y" }}</small>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <span class="badge 
+                                                        {% if assignment.get_delivery_status == 'OTIF' %}bg-success
+                                                        {% elif assignment.get_delivery_status == 'On Time' %}bg-info
+                                                        {% elif assignment.get_delivery_status == 'Pending' %}bg-warning
+                                                        {% elif assignment.get_delivery_status == 'Overdue' %}bg-danger
+                                                        {% else %}bg-secondary
+                                                        {% endif %}">
+                                                        {{ assignment.get_delivery_status }}
+                                                    </span>
+                                                    {% if assignment.quality_rating %}
+                                                    <br><small class="rating-stars">
+                                                        {% for i in "12345" %}
+                                                            {% if assignment.quality_rating >= i|floatformat:0 %}
+                                                                <i class="fas fa-star"></i>
+                                                            {% else %}
+                                                                <i class="far fa-star"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </small>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <a href="{% url 'crm_order_detail' assignment.order.order_id %}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            {% if assignment.delivery_notes %}
+                                            <div class="row mt-2">
+                                                <div class="col-12">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-sticky-note me-1"></i>
+                                                        {{ assignment.delivery_notes }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-tasks fa-2x text-muted mb-2"></i>
+                                        <p class="text-muted mb-0">No orders assigned to this vendor yet</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
