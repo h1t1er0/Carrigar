@@ -54,6 +54,6 @@ wheels/
 *.egg
 
 # Django migrations (optional - uncomment if you want to exclude them)
-*/migrations/*.py
-*/migrations/__init__.py
+*/migrations/00*
+#*/migrations/__init__.py
 #accounts/migrations/0001_initial.py
